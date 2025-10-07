@@ -6,13 +6,23 @@ import RPi.GPIO as GPIO
 import time
 import math
 
-p = 17
+
+f = 0.2
+t = time.time()
+B = (math.sin(2*math.pi*f*t))**2
+p = 6
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(p, GPIO.OUT)
 
-while True:
-	t = time.time()
-	f = 0.2
-	B = (math.sin(2*math.pi*f*t))**2
-	GPIO.output(p, B)
+pwm = GPIO.PWM(p, 500)
+
+try:
+	pwm.start(0)
+	while True:
+		GPIO.output(p, B)
+	except KeyboardInterrupt:
+		print('\nExiting')
+
+	pwm.stop()
+	GPIO.cleanup()
