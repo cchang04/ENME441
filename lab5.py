@@ -26,7 +26,7 @@ try:
 		B1 = (math.sin(2*math.pi*f*t))**2
 		phi = math.pi/11
 		B2 = (math.sin((2*math.pi*f*t) - phi))**2
-		dc1 = B*100
+		dc1 = B1*100
 		dc2 = B2*100
 
 		pwm1.ChangeDutyCycle(dc1)
