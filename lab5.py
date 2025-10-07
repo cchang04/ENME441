@@ -18,9 +18,9 @@ GPIO.setup(p, GPIO.OUT)
 pwm = GPIO.PWM(p, 500)
 
 try:
-	pwm.start(0)
+	pwm.start(B)
 	while True:
-		pwm.ChangeDutyCycle(B)
+		pass
 
 except KeyboardInterrupt:
 	print('\nExiting')
