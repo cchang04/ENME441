@@ -21,8 +21,9 @@ try:
 	pwm.start(0)
 	while True:
 		GPIO.output(p, B)
-	except KeyboardInterrupt:
-		print('\nExiting')
+		
+except KeyboardInterrupt:
+	print('\nExiting')
 
-	pwm.stop()
-	GPIO.cleanup()
+pwm.stop()
+GPIO.cleanup()
