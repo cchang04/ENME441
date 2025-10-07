@@ -22,7 +22,7 @@ def myCallback():
 	phi = -1*(math.pi/11)
 
 try:
-	GPIO.add_event_detect(26, GPIO.RISING, callback=myCallback(), boucetime=100)
+	GPIO.add_event_detect(26, GPIO.RISING, callback=myCallback(), bouncetime=100)
 
 	while True:
 		for (i, value) in enumerate(pwm_array): #Assigns the index of the array to "i" and the value of the array to "value"
