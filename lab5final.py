@@ -26,7 +26,7 @@ try:
 			t = time.time()
 			B = (math.sin((2*math.pi*f*t) - updated_phi))**2
 			dc = B*100
-			pwm_array.ChangeDutyCycle(dc)
+			value.ChangeDutyCycle(dc)
 
 except KeyboardInterrupt:
 	print('\nExiting')
