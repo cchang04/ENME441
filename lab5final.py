@@ -26,11 +26,12 @@ def myCallback(pin):
 	dir = -1*dir
 
 try:
-	GPIO.add_event_detect(pin, GPIO.RISING, callback=myCallback, bouncetime=100)
+	GPIO.add_event_detect(pin, GPIO.RISING, callback=myCallback, bouncetime=100) 
+	#Detects when the pin goes HIGH, then calls myCallback function to set the direction equal to -1
 
 	while True:
 		for (i, value) in enumerate(pwm_array): #Assigns the index of the array to "i" and the value of the array to "value"
-			phi = direction*(math.pi/11)
+			phi = dir*(math.pi/11)
 			updated_phi = i*phi #Increases phi value based on index/pin number
 			f = 0.2
 			t = time.time()
