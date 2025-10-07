@@ -8,7 +8,7 @@ import math
 
 
 
-p = 6
+p = 17
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(p, GPIO.OUT)
