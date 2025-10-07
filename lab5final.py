@@ -18,15 +18,16 @@ for pin in p: #For every pin number assign to "pin" each loop
 	pwm.start(0) #Start duty cycle at 0
 	pwm_array.append(pwm) #Add each pwm code into the array
 
-def myCallback():
-	phi = -1*(math.pi/11)
+def myCallback(input):
+	global phi
+	phi = -1*phi
 
 try:
-	GPIO.add_event_detect(26, GPIO.RISING, callback=myCallback(), bouncetime=100)
+	GPIO.add_event_detect(26, GPIO.RISING, callback=myCallback, boucetime=100)
 
 	while True:
 		for (i, value) in enumerate(pwm_array): #Assigns the index of the array to "i" and the value of the array to "value"
-			phi = math.pi/11
+			phi = direction*(math.pi/11)
 			updated_phi = i*phi #Increases phi value based on index/pin number
 			f = 0.2
 			t = time.time()
