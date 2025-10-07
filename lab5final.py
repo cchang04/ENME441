@@ -29,7 +29,7 @@ try:
 
 	while True:
 		for (i, value) in enumerate(pwm_array): #Assigns the index of the array to "i" and the value of the array to "value"
-			phi = direction*(math.pi/11)
+			phi = math.pi/11
 			updated_phi = i*phi #Increases phi value based on index/pin number
 			f = 0.2
 			t = time.time()
