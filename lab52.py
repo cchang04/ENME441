@@ -5,7 +5,7 @@ import math
 # --- Configuration ---
 # List of GPIO pin numbers for the 12 LEDs (BCM numbering)
 # NOTE: Adjust these pin numbers to match your actual hardware setup
-LED_PINS = [12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] 
+LED_PINS = [17, 27, 22, 10, 9, 11, 5, 6, 13, 19] 
 
 PWM_FREQUENCY = 500  # Base PWM frequency in Hz
 SINE_FREQUENCY = 0.2 # f in the equation, 0.2 Hz
