@@ -11,14 +11,26 @@ from shifter import Shifter
 GPIO.setmode(GPIO.BCM)
 serialPin, latchPin, clockPin = 23, 24, 25
 
+s1_pin = 17 #for on/off
+s2_pin = 27 #to change wrap
+s3_pin = 22 #change speed
+
+initial_timestep = 0.1
+fast_timestep = initial_timestep/3.0
+
+GPIO.setup(s1_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(s2_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(s3_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+
 class Bug:
-  def __init__(self, shifter, timestep = 0.1, x = 3, isWrapOn = False): #initialize attributes of bug class
+  def __init__(self, shifter, timestep = initial_timestep, x = 3, isWrapOn = False): #initialize attributes of bug class
     self.__shifter = shifter
     self.timestep = timestep
     self.x = x
     self.isWrapOn = isWrapOn
     self.min = 0
     self.max = 7
+    self.is_active = False
 
   def move(self):
     walk = random.choice([-1, 1]) #chooses randomly between -1 and 1
@@ -36,25 +48,43 @@ class Bug:
         self.x = new_x
 
   def start(self):
-    try:
-      while True:
-        self.move() #initiates the bug movement
-        ledPattern = 1 << self.x #creates a byte, shifting the binary number "1" left to the "x" index
-        self.__shifter.shiftByte(ledPattern) #checks which index in the led byte is 1, turns the corresponding led on
-        time.sleep(self.timestep)
-    except KeyboardInterrupt: # when keyboard interrupt detected, initiate stop
-      self.stop()
-
+    self.is_active = True
+    self.move() #initiates the bug movement
+    ledPattern = 1 << self.x #creates a byte, shifting the binary number "1" left to the "x" index
+    self.__shifter.shiftByte(ledPattern) #checks which index in the led byte is 1, turns the corresponding led on
+    
   def stop(self):
+    self.is_active = False
     self.__shifter.shiftByte(0b00000000) #makes all led indexes 0 (turns off all leds)
-    GPIO.cleanup()
  
 shifter = Shifter(serialPin, latchPin, clockPin) #creates shifter object from Shifter class
-trapBug = Bug(shifter) #creates the trapBug object from Bug class (with isWrapOn = False)
-wrapBug = Bug(shifter, timestep = 0.05, isWrapOn = True) #creates wrapBug object from Bug class (with isWrapOn = True and faster time step)
+bug = Bug(shifter, timestep = initial_timestep, x = 3, isWrapOn = False)
+
+s2_prev_state = GPIO.LOW
+current_timestep = initial_timestep
 
 try:
-  #trapBug.start()
-  wrapBug.start()
+  while True:
+    s1 = GPIO.input(s1_pin)
+    s2 = GPIO.input(s2_pin)
+    s3 = GPIO.input(s3_pin)
+
+    if s2 == GPIO.HIGH and s2_prev_state == GPIO.LOW:
+      bug.isWrapOn = not bug.isWrapOn
+    s2_prev_state = s2
+
+    if s3 == GPIO.HIGH:
+      current_timestep = fast_timestep
+    else:
+      current_timestep = initial_timestep
+    
+    if s1 == GPIO.HIGH:
+      bug.start()
+    else:
+      bug.stop()
+
+    time.sleep(current_timestep)
+
 except KeyboardInterrupt:
+  bug.stop()
   GPIO.cleanup()
