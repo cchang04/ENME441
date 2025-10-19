@@ -5,10 +5,6 @@ GPIO.setmode(GPIO.BCM)
 
 serialPin, latchPin, clockPin = 23, 24, 25
 
-
-
-pattern = 0b01100110        # 8-bit pattern to display on LED bar
-
 class Shifter:
   def __init__(self, serialPin, clockPin, latchPin):
     self.serialPin = serialPin
