@@ -11,7 +11,7 @@ GPIO.setmode(GPIO.BCM)
 serialPin, latchPin, clockPin = 23, 24, 25
 
 class Shifter:
-  def __init__(self, serialPin, latchPin, clockPin):
+  def __init__(self, serialPin, latchPin, clockPin): #initialize the Shifter class with its attributes
     self.serialPin = serialPin
     self.latchPin = latchPin
     self.clockPin = clockPin
@@ -29,7 +29,7 @@ class Shifter:
     for i in range(8):
       GPIO.output(self.serialPin, b & (1 << i))
       """
-      creates 8 bytes, each with the binary number 1 shifted to the left each run through the for loop
+      creates 8 separate bytes, each with the binary number 1 shifted to the left by 1 index each run through the for loop
       for each byte, checks if both the b pattern and the shifted byte has a 1 at each index
       if the both have a 1, GPIO pin is TRUE (turns LED on), if not, pin is FALSE (keeps LED off)
       """
