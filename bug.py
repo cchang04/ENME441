@@ -29,8 +29,6 @@ try:
     shifter.shiftByte(ledPattern) #checks which index is 1 and turns on the corresponding index's LED
 
     time.sleep(0.05)
-
-try:
-  while 1: pass
+    
 except:
   GPIO.cleanup()
