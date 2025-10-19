@@ -24,7 +24,7 @@ class Bug:
     walk = random.choice([-1, 1]) #chooses randomly between -1 and 1
     new_x = self.x + walk
 
-    if self.isWrapOn == True #conditions for wrapping
+    if self.isWrapOn == True: #conditions for wrapping
       if new_x > self.max:
         self.x = self.min
       elif new_x < self.min:
