@@ -37,10 +37,8 @@ if __name__ == "__main__":
   shifter = Shifter(serialPin, latchPin, clockPin)
  
   try:
-    shifter.shiftByte(0b11111111)
+    while 1: 
+      shifter.shiftByte(0b11111111)
+  
   except KeyboardInterrupt:
     GPIO.cleanup()
-  
-  while 1: pass
-except:
-  GPIO.cleanup()
