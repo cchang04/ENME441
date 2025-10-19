@@ -18,6 +18,7 @@ s3_pin = 22 #change speed
 initial_timestep = 0.1
 fast_timestep = initial_timestep/3.0
 
+#sets the s1-3 pins as pulldown resistors (off when not conencted)
 GPIO.setup(s1_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(s2_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(s3_pin, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -30,7 +31,6 @@ class Bug:
     self.isWrapOn = isWrapOn
     self.min = 0
     self.max = 7
-    self.is_active = False
 
   def move(self):
     walk = random.choice([-1, 1]) #chooses randomly between -1 and 1
@@ -54,13 +54,10 @@ class Bug:
     self.__shifter.shiftByte(ledPattern) #checks which index in the led byte is 1, turns the corresponding led on
     
   def stop(self):
-    self.is_active = False
     self.__shifter.shiftByte(0b00000000) #makes all led indexes 0 (turns off all leds)
  
 shifter = Shifter(serialPin, latchPin, clockPin) #creates shifter object from Shifter class
 bug = Bug(shifter, timestep = initial_timestep, x = 3, isWrapOn = False)
-
-s2_prev_state = GPIO.LOW
 current_timestep = initial_timestep
 
 try:
@@ -69,16 +66,17 @@ try:
     s2 = GPIO.input(s2_pin)
     s3 = GPIO.input(s3_pin)
 
-    if s2 == GPIO.HIGH and s2_prev_state == GPIO.LOW:
-      bug.isWrapOn = not bug.isWrapOn
-    s2_prev_state = s2
+    if s2 == GPIO.HIGH: #if s2 pin is high, wraps, when false, does not wrap
+      bug.isWrapOn = True #changes the isWrapOn attribute to true
+    else:
+      bug.isWrapOn = False
 
     if s3 == GPIO.HIGH:
       current_timestep = fast_timestep
     else:
       current_timestep = initial_timestep
     
-    if s1 == GPIO.HIGH:
+    if s1 == GPIO.HIGH: #start when power is applied and stop when no power in s1 pin
       bug.start()
     else:
       bug.stop()
