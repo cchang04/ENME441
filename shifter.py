@@ -27,7 +27,12 @@ class Shifter:
 
   def shiftByte(self, b):
     for i in range(8):
-      GPIO.output(self.serialPin, b & (1 << i)) #sets the designated serial pin to either 0 or 1 (high/low, on/off for LED)
+      GPIO.output(self.serialPin, b & (1 << i))
+      """
+      creates 8 bytes, each with the binary number 1 shifted to the left each run through the for loop
+      for each byte, checks if both the b pattern and the shifted byte has a 1 at each index
+      if the both have a 1, GPIO pin is TRUE (turns LED on), if not, pin is FALSE (keeps LED off)
+      """
       self.__ping(self.clockPin)
     self.__ping(self.latchPin)
 
