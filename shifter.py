@@ -33,9 +33,13 @@ class Shifter:
       self.__ping(self.clockPin)
     self.__ping(self.latchPin)
 
-try:
+if __name__ == "__main__":
   shifter = Shifter(serialPin, latchPin, clockPin)
-  shifter.shiftByte(0b11111111)
+ 
+  try:
+    shifter.shiftByte(0b11111111)
+  except KeyboardInterrupt:
+    GPIO.cleanup()
   
   while 1: pass
 except:
