@@ -5,17 +5,19 @@ GPIO.setmode(GPIO.BCM)
 
 serialPin, latchPin, clockPin = 23, 24, 25
 
-GPIO.setup(serialPin, GPIO.OUT)
-GPIO.setup(latchPin, GPIO.OUT, initial=0)  # start latch & clock low
-GPIO.setup(clockPin, GPIO.OUT, initial=0)  
+
 
 pattern = 0b01100110        # 8-bit pattern to display on LED bar
 
 class Shifter:
-  def __init__(self, serial, clock, latch):
-    self.serialPin = serial
-    self.clockPin = clock
-    self.latchPin = latch
+  def __init__(self, serialPin, clockPin, latchPin):
+    self.serialPin = serialPin
+    self.clockPin = clockPin
+    self.latchPin = latchPin
+    
+    GPIO.setup(serialPin, GPIO.OUT)
+    GPIO.setup(latchPin, GPIO.OUT, initial=0)
+    GPIO.setup(clockPin, GPIO.OUT, initial=0)
 
   def __ping(self, p):
     GPIO.output(p, 1)
@@ -31,7 +33,7 @@ class Shifter:
       if the ith bit in b is 1 AND the left shifted bit is also 1, bit_value returns a 1
       if the ith bit in b is a 0, then we have a 0 and a 1 which results in a 0
       """
-      GPIO.output(self.serialPin, bit_value) #sets the designated serial pin to either 0 or 1 (high/low, on/off for LED)
+      GPIO.output(self.serialPin, b & (1 << i)) #sets the designated serial pin to either 0 or 1 (high/low, on/off for LED)
       self.__ping(self.clockPin)
     self.__ping(self.latchPin)
 
