@@ -9,7 +9,7 @@ import random
 from shifter import Shifter
 
 GPIO.setmode(GPIO.BCM)
-serialPin, clockPin, latchPin = 23, 25, 24
+serialPin, latchPin, clockPin = 23, 24, 25
 
 class Bug:
   def __init__(self, shifter, timestep = 0.1, x = 3, isWrapOn = False):
@@ -56,4 +56,5 @@ wrapBug = Bug(shifter, timestep = 0.05, isWrapOn = True)
 try:
   trapBug.start()
   #wrapBug.start()
-    
+except KeyboardInterrupt:
+  GPIO.cleanup()
