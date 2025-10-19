@@ -31,7 +31,7 @@ if __name__ == "__main__":
  
   try:
     while 1: 
-      shifter.shiftByte(0b10101010)
+      shifter.shiftByte(0b01010101)
   
   except KeyboardInterrupt:
     GPIO.cleanup()
