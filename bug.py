@@ -22,7 +22,7 @@ try:
     walk = random.choice(step)
     newPosition = initialPosition + walk
 
-    if newPositon >= min && newPosition <= max: #if the new position is within the boundaries, update the initial position otherwise the initial stays the same
+    if min <=newPosition <= max: #if the new position is within the boundaries, update the initial position otherwise the initial stays the same
       initialPosition = newPosition
 
     ledPattern = 1 << initialPosition #creates a byte with binary number "1" at the initialPosition index
