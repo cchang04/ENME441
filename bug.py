@@ -12,7 +12,7 @@ GPIO.setmode(GPIO.BCM)
 serialPin, latchPin, clockPin = 23, 24, 25
 
 class Bug:
-  def __init__(self, shifter, timestep = 0.1, x = 3, isWrapOn = False):
+  def __init__(self, shifter, timestep = 0.1, x = 3, isWrapOn = False): #initialize attributes of bug class
     self.__shifter = shifter
     self.timestep = timestep
     self.x = x
@@ -54,7 +54,7 @@ trapBug = Bug(shifter)
 wrapBug = Bug(shifter, timestep = 0.05, isWrapOn = True)
 
 try:
-  trapBug.start()
-  #wrapBug.start()
+  #trapBug.start()
+  wrapBug.start()
 except KeyboardInterrupt:
   GPIO.cleanup()
