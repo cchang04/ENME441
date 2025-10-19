@@ -49,9 +49,9 @@ class Bug:
     self.__shifter.shiftByte(0b00000000) #makes all led indexes 0 (turns off all leds)
     GPIO.cleanup()
  
-shifter = Shifter(serialPin, latchPin, clockPin)
-trapBug = Bug(shifter)
-wrapBug = Bug(shifter, timestep = 0.05, isWrapOn = True)
+shifter = Shifter(serialPin, latchPin, clockPin) #creates shifter object from Shifter class
+trapBug = Bug(shifter) #creates the trapBug object from Bug class (with isWrapOn = False)
+wrapBug = Bug(shifter, timestep = 0.05, isWrapOn = True) #creates wrapBug object from Bug class (with isWrapOn = True and faster time step)
 
 try:
   #trapBug.start()
