@@ -7,10 +7,6 @@ GPIO.setmode(GPIO.BCM)
 
 serialPin, latchPin, clockPin = 23, 24, 25
 
-GPIO.setup(serialPin, GPIO.OUT)
-GPIO.setup(latchPin, GPIO.OUT, initial = 0)
-GPIO.setup(clockPin, GPIO.OUT, initial = 0)
-
 shifter = Shifter(serialPin, latchPin, clockPin)
 initialPosition = random.randint(0, 7)
 min = 0
