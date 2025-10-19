@@ -6,7 +6,7 @@ ENME441 - Lab 6
 import RPi.GPIO as GPIO
 import time
 import random
-from shifter import Shifter
+from shifter import Shifter #import Shifter class from shifter.py
 
 GPIO.setmode(GPIO.BCM)
 serialPin, latchPin, clockPin = 23, 24, 25
@@ -34,7 +34,7 @@ class Bug:
 
   def move(self):
     walk = random.choice([-1, 1]) #chooses randomly between -1 and 1
-    new_x = self.x + walk
+    new_x = self.x + walk #adds the walk number to the initial position
 
     if self.isWrapOn == True: #conditions for wrapping
       if new_x > self.max:
@@ -48,7 +48,6 @@ class Bug:
         self.x = new_x
 
   def start(self):
-    self.is_active = True
     self.move() #initiates the bug movement
     ledPattern = 1 << self.x #creates a byte, shifting the binary number "1" left to the "x" index
     self.__shifter.shiftByte(ledPattern) #checks which index in the led byte is 1, turns the corresponding led on
