@@ -19,7 +19,7 @@ class Shifter:
 
   def __ping(self, p):
     GPIO.output(p, 1)
-    time.sleep(0.00001)
+    time.sleep(0)
     GPIO.output(p, 0)
 
   def shiftByte(self, b):
