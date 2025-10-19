@@ -26,7 +26,7 @@ class Shifter:
       self.__ping(self.clockPin)
     self.__ping(self.latchPin)
 
-if __name__ == "__main__":
+if __name__ == "__main__": #only run the following code when shifter.py is directly run (used to test code)
   shifter = Shifter(serialPin, latchPin, clockPin)
  
   try:
