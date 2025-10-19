@@ -1,3 +1,8 @@
+"""
+Connor Chang
+ENME441 - Lab 6
+"""
+
 import RPi.GPIO as GPIO
 import time
 import random
