@@ -38,9 +38,6 @@ class Shifter:
 try:
   shifter = Shifter(serialPin, latchPin, clockPin)
   shifter.shiftByte(0b11111111)
-  time.sleep(5)
-  shifter.shiftByte(0b00000000)
-  time.sleep(1)
   
   while 1: pass
 except:
