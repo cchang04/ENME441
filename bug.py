@@ -31,6 +31,6 @@ try:
     time.sleep(0.05)
 
 try:
- while 1: pass
+  while 1: pass
 except:
- GPIO.cleanup()
+  GPIO.cleanup()
