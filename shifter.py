@@ -3,23 +3,37 @@ import time
 
 GPIO.setmode(GPIO.BCM)
 
-dataPin, latchPin, clockPin = 23, 24, 25
+serialPin, latchPin, clockPin = 23, 24, 25
 
-GPIO.setup(dataPin, GPIO.OUT)
+GPIO.setup(serialPin, GPIO.OUT)
 GPIO.setup(latchPin, GPIO.OUT, initial=0)  # start latch & clock low
 GPIO.setup(clockPin, GPIO.OUT, initial=0)  
 
-pattern = 0b01110110        # 8-bit pattern to display on LED bar
+pattern = 0b01100110        # 8-bit pattern to display on LED bar
 
-for i in range(8):
-  GPIO.output(dataPin, pattern & (1<<i))
-  GPIO.output(clockPin,1) 	    # ping the clock pin to shift register data
-  time.sleep(0)
-  GPIO.output(clockPin,0)
+class Shifter:
+  def __init__(self, serial, clock, latch):
+    self.serialPin = serial
+    self.clockPin = clock
+    self.latchPin = latch
 
-GPIO.output(latchPin, 1)        # ping the latch pin to send register to output
-time.sleep(0)
-GPIO.output(latchPin, 0)
+  def __ping(self, p):
+    GPIO.output(p, 1)
+    time.sleep(0)
+    GPIO.output(p, 0)
+
+  def shiftByte(self, b):
+    for i in range(8):
+      bit_value = 1 if (b & (1<<i)) else 0
+      """
+      the (1<<i) shifts the binary number "1" by i values to the left to create a byte with a singular 1 at the ith position
+      b is equal to the byte we are looking at (ex. in class was 01100110)
+      if the ith bit in b is 1 AND the left shifted bit is also 1, bit_value returns a 1
+      if the ith bit in b is a 0, then we have a 0 and a 1 which results in a 0
+      """
+      GPIO.output(self.serialPin, bit_value) #sets the designated serial pin to either 0 or 1 (high/low, on/off for LED)
+      self.__ping(self.clockPin)
+    self.__ping(self.latchPin)
 
 try:
   while 1: pass
