@@ -68,6 +68,7 @@ PORT = 8080
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
 server_socket.listen(1)
+print("Listening for connections on port", PORT)
 
 print(f"Server running on port {PORT}...")
 print("Open a browser and go to: http://172.20.10.2:" + str(PORT))
