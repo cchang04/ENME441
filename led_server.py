@@ -55,7 +55,7 @@ Content-Type: text/html
 # Main TCP server loop
 # -------------------------------
 HOST = ''  # listen on all interfaces
-PORT = 8081
+PORT = 8080
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
