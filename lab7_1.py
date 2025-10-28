@@ -70,7 +70,7 @@ server_socket.bind((HOST, PORT))
 server_socket.listen(1)
 
 print(f"Server running on port {PORT}...")
-print("Open a browser and go to: http://<your_pi_ip>:" + str(PORT))
+print("Open a browser and go to: http://172.20.10.2:" + str(PORT))
 
 try:
     while True:
