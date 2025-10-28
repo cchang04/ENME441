@@ -1,53 +1,90 @@
 import socket
-# You will also need to import your GPIO library (e.g., RPi.GPIO or pigpio)
-import threading
+import RPi.GPIO as GPIO
 
-HOST = ''  # Allows any incoming connection
-PORT = 8080 # Use a non-privileged port to avoid 'sudo'
-LED_STATES = [0, 0, 0] # List to store brightness (0-100) for LED 1, 2, 3
+# -------------------------------
+# Hardware setup
+# -------------------------------
+GPIO.setmode(GPIO.BCM)
+LED_PINS = [17, 27, 22]  # example GPIO pins for LED1, LED2, LED3
+pwms = []
 
-# Example structure for handling a single request in a thread (similar to webserver_threaded.py)
-def handle_client(conn):
-    request = conn.recv(1024).decode()
+# Initialize PWM for each LED
+for pin in LED_PINS:
+    GPIO.setup(pin, GPIO.OUT)
+    pwm = GPIO.PWM(pin, 1000)  # 1 kHz PWM frequency
+    pwm.start(0)
+    pwms.append(pwm)
 
-    # Check if it's a POST request (starts with "POST / HTTP/1.1")
-    # If POST, parse the data, update LED_STATES, and then generate the HTML
-    # If GET (for initial page load), just generate the HTML
+# Keep track of brightness levels for each LED
+led_brightness = [0, 0, 0]
 
-    # Update LED state logic here (using your GPIO library)
-    # ...
+# -------------------------------
+# HTML page generator
+# -------------------------------
+def generate_html():
+    return f"""\
+HTTP/1.1 200 OK
+Content-Type: text/html
 
-    response_html = generate_html() # Call function to build the HTML page
+<html>
+<head>
+    <title>LED Brightness Control</title>
+</head>
+<body>
+    <h3>Brightness level:</h3>
+    <form method="POST">
+        <input type="range" name="brightness" min="0" max="100" value="50"><br><br>
+        <b>Select LED:</b><br>
+        <input type="radio" name="led" value="0" checked> LED 1 ({led_brightness[0]}%)<br>
+        <input type="radio" name="led" value="1"> LED 2 ({led_brightness[1]}%)<br>
+        <input type="radio" name="led" value="2"> LED 3 ({led_brightness[2]}%)<br><br>
+        <input type="submit" value="Change Brightness">
+    </form>
+    <hr>
+    <h4>Current LED Brightness Levels:</h4>
+    <ul>
+        <li>LED 1: {led_brightness[0]}%</li>
+        <li>LED 2: {led_brightness[1]}%</li>
+        <li>LED 3: {led_brightness[2]}%</li>
+    </ul>
+</body>
+</html>
+"""
 
-    # Send HTTP Response
-    conn.send(b'HTTP/1.1 200 OK\r\n')
-    conn.send(b'Content-type: text/html\r\n')
-    conn.send(b'Connection: close\r\n\r\n')
-    conn.sendall(response_html.encode())
-    conn.close()
+# -------------------------------
+# Main TCP server loop
+# -------------------------------
+HOST = ''  # listen on all interfaces
+PORT = 8080
 
-def run_server():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((HOST, PORT))
-    s.listen(1) # Listen for up to 1 queued connection
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((HOST, PORT))
+server_socket.listen(1)
+
+print(f"Server running on port {PORT}... Visit http://<Pi_IP_address>:{PORT}")
+
+try:
     while True:
-        conn, addr = s.accept() # Blocking call to wait for a connection
-        # Start a new thread for each connection to avoid blocking the server
-        client_thread = threading.Thread(target=handle_client, args=(conn,))
-        client_thread.start()
-
-# Your main code starts run_server in a thread and continues other tasks
-# server_thread = threading.Thread(target=run_server)
-# server_thread.start()
-
-<form action="/" method="POST">
-    <h2>Brightness level:</h2>
-    <input type="range" name="value" min="0" max="100" value="50"><br>
-    
-    <h2>Select LED:</h2>
-    <input type="radio" name="led_select" value="1" checked> LED 1 (0%) <br>
-    <input type="radio" name="led_select" value="2"> LED 2 (0%) <br>
-    <input type="radio" name="led_select" value="3"> LED 3 (0%) <br><br>
-
-    <button type="submit">Change Brightness</button>
-</form>
+        conn, addr = server_socket.accept()
+        request = conn.recv(1024).decode('utf-8')
+        
+        # Debug: print raw HTTP request
+        # print(request)
+        
+        # Determine request type
+        if request.startswith('POST'):
+            # Extract POST data (after blank line)
+            body = request.split('\r\n\r\n')[1]
+            
+            # Parse form data
+            data = dict(param.split('=') for param in body.split('&'))
+            selected_led = int(data.get('led', 0))
+            new_brightness = int(data.get('brightness', 0))
+            
+            # Update LED brightness
+            led_brightness[selected_led] = new_brightness
+            pwms[selected_led].ChangeDutyCycle(new_brightness)
+        
+        # Send HTML response
+        response = generate_html()
+        con
