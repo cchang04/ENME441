@@ -87,4 +87,14 @@ try:
         
         # Send HTML response
         response = generate_html()
-        con
+        conn.sendall(response.encode('utf-8'))
+        conn.close()
+
+except KeyboardInterrupt:
+    print("\nShutting down server...")
+
+finally:
+    for pwm in pwms:
+        pwm.stop()
+    GPIO.cleanup()
+    server_socket.close()
