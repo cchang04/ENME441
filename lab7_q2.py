@@ -1,7 +1,7 @@
 """
 Connor Chang
 ENME441 - Lab 7
-Question 2: Instant LED Brightness Control (AJAX)
+Question 2
 """
 
 import socket
@@ -149,15 +149,13 @@ try:
         if request.startswith("POST"):
             data = parsePOSTdata(request)
             
-            # Extract and convert the values (which are strings from the POST body)
+            #extract and convert the values
             try:
-                # The keys 'led' and 'brightness' match the JavaScript payload
                 led = int(data.get("led", 0))
                 new_brightness = int(data.get("brightness", 0))
 
-                # Update hardware and tracking array if data is valid
+                #update pi and tracking array if data is valid
                 if 0 <= led < len(pwms):
-                    # Clamp brightness to 0-100 range for safety
                     brightness_clamped = max(0, min(100, new_brightness))
                     
                     led_brightness[led] = brightness_clamped
@@ -167,7 +165,6 @@ try:
                 print("Error: Received invalid value.")
 
         #update HTML page w/ LLM function
-        # Send back the current HTML page (needed for initial GET, ignored by POST/AJAX)
         response = generate_html()
         conn.sendall(response.encode('utf-8'))
         conn.close()
