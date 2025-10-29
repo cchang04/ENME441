@@ -1,30 +1,55 @@
 import socket
 import RPi.GPIO as GPIO
 
+# Fix: Initialize pwms list
+pwms = []
+
+# Helper function to extract key,value pairs of POST data
+def parsePOSTdata(data):
+    """
+    Extracts key/value pairs from the body of a raw HTTP POST request string.
+    Expects data in the format: key1=value1&key2=value2...
+    """
+    data_dict = {}
+    # Find the end of the headers and the start of the data body
+    # \r\n\r\n is the separator between headers and body
+    idx = data.find('\r\n\r\n') + 4
+    data = data[idx:] # Slice to get only the body data
+    
+    # Split the body into individual key=value pairs
+    data_pairs = data.split('&')
+    
+    for pair in data_pairs:
+        # Split each pair into key and value
+        key_val = pair.split('=')
+        # Ensure we have both key and value
+        if len(key_val) == 2:
+            data_dict[key_val[0]] = key_val[1]
+    return data_dict
+
 GPIO.setmode(GPIO.BCM)
 
 LED_PINS = [17, 27, 22]
 
 #create PWM objects for each LED
-pwm = []
 for i in LED_PINS:
     GPIO.setup(i, GPIO.OUT)
-    pwm = GPIO.PWM(i, 1000) #set 1000Hz freq
-    pwm.start(0) #start w/ zero brightness for each pun
-    pwms.append(pwm)
+    pwm_obj = GPIO.PWM(i, 1000) #set 1000Hz freq
+    pwm_obj.start(0) #start w/ zero brightness for each pin
+    pwms.append(pwm_obj)
 
 #brightness array to track brightness levels
 led_brightness = [0, 0, 0]
 
 
 # -----------------------------------
-# HTML Page Generator
+# HTML Page Generator (LLM)
 # -----------------------------------
 def generate_html():
     """Return a full HTML page showing sliders, radio buttons, and LED states."""
     
     # 1. Determine the brightness of the default selected LED (LED 1 at index 0)
-    default_slider_value = led_brightness[0] 
+    default_slider_value = led_brightness[0]
     
     html = f"""\
 HTTP/1.1 200 OK
@@ -52,39 +77,41 @@ Content-Type: text/html
 </html>
 """
     return html
-
-
+    
 # -----------------------------------
-# TCP/IP Web Server
-# -----------------------------------
-HOST = ''   # Listen on all available interfaces
-PORT = 8080
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
-server_socket.listen(1)
+HOST = '' #empty string to allow all connections
+PORT = 8080 #initialize port
 
-print(f"Server running on port {PORT}...")
-print("Open a browser and go to: http://<your_pi_ip>:" + str(PORT))
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #creating socket w/ IPv4 socket and use TCP as the message transport protocol
+server_socket.bind((HOST, PORT)) #bind host through given port
+server_socket.listen(1) #listen for clients
+
+print(f"Server running on port {PORT}")
+print("Open: http://<172.20.10.2>:" + str(PORT))
 
 try:
     while True:
-        conn, addr = server_socket.accept()
+        conn, addr = server_socket.accept() #accept client connection
         request = conn.recv(1024).decode('utf-8')
-
-        # Debug print
-        # print("Request:\n", request)
-
+        """
+        recieves data from the socket object with maximum of 1024 bytes
+        the network data is decoded and transmitted into raw bytes then back to string
+        """
+#close the connection socket and continue to next iteration of while loop if request is empty
         if not request:
             conn.close()
             continue
 
         # Check if it's a POST (form submission)
         if request.startswith("POST"):
-            # Extract body (data after the blank line)
-            body = request.split("\r\n\r\n")[1]
-            form_data = dict(param.split('=') for param in body.split('&'))
+            
+            # --- USING THE NEW PARSING FUNCTION ---
+            # 1. Call the function to get the form data dictionary
+            form_data = parsePOSTdata(request)
 
+            # 2. Extract and convert the values
+            # The values from the POST body are strings, so they must be converted to int
             selected_led = int(form_data.get("led", 0))
             new_brightness = int(form_data.get("brightness", 0))
 
