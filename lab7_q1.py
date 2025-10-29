@@ -1,21 +1,19 @@
 import socket
 import RPi.GPIO as GPIO
 
-# -----------------------------------
-# GPIO + PWM Setup
-# -----------------------------------
 GPIO.setmode(GPIO.BCM)
-LED_PINS = [17, 27, 22]  # GPIO pins for LED 1, 2, 3
 
-# Create PWM objects for each LED
-pwms = []
-for pin in LED_PINS:
-    GPIO.setup(pin, GPIO.OUT)
-    pwm = GPIO.PWM(pin, 1000)  # 1 kHz frequency
-    pwm.start(0)               # Start with 0% brightness
+LED_PINS = [17, 27, 22]
+
+#create PWM objects for each LED
+pwm = []
+for i in LED_PINS:
+    GPIO.setup(i, GPIO.OUT)
+    pwm = GPIO.PWM(i, 1000) #set 1000Hz freq
+    pwm.start(0) #start w/ zero brightness for each pun
     pwms.append(pwm)
 
-# Track current brightness of each LED
+#brightness array to track brightness levels
 led_brightness = [0, 0, 0]
 
 
