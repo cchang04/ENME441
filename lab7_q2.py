@@ -41,7 +41,6 @@ def generate_html():
     """Return a full HTML page showing sliders and using JavaScript/AJAX for updates."""
     
     # 1. Determine the brightness of the default selected LED (LED 1 at index 0)
-    # This value is now used to set the initial position of the sliders
     default_slider_value = led_brightness[0]
     
     html = f"""\
@@ -52,9 +51,8 @@ Content-Type: text/html
 <head>
 <title>Instant LED Brightness Control</title>
 <style>
-    /* Styling to match the requested interface example */
     body {{ font-family: sans-serif; padding: 20px; }}
-    .led-control {{ display: flex; align-items: center; margin-bottom: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; }}
+    .led-control {{ display: flex; align-items: center; margin-bottom: 15px; }}
     .led-control label {{ width: 60px; font-weight: bold; }}
     .led-control input[type="range"] {{ flex-grow: 1; margin: 0 15px; }}
     .led-control span {{ width: 30px; text-align: right; font-weight: bold; }}
@@ -89,29 +87,22 @@ Content-Type: text/html
 </div>
 
 <script>
-    // JavaScript function to handle slider movement and send AJAX request
+    // This function sends a POST request with the new LED index and brightness value
     function updateBrightness(ledIndex, brightnessValue) {{
-        // 1. Instantly update the displayed value next to the slider on the page
+        // Update the displayed value instantly on the client side
         document.getElementById('value' + ledIndex).innerText = brightnessValue;
         
-        // 2. Prepare the data payload in the format the server's parsePOSTdata expects
+        // Prepare data in the format the server expects: key=value&...
         const postData = `led=${{ledIndex}}&brightness=${{brightnessValue}}`;
         
-        // 3. Use the Fetch API to send a POST request without reloading the page
+        // Send AJAX POST request using the Fetch API
         fetch(window.location.href, {{
             method: 'POST',
             headers: {{
                 'Content-Type': 'application/x-www-form-urlencoded',
             }},
             body: postData
-        }})
-        .then(response => {{
-            // Optional: Log successful communication to the console
-            if (response.ok) {{
-                console.log(`LED ${{ledIndex}} update sent.`);
-            }}
-        }})
-        .catch(error => console.error('AJAX Error:', error));
+        }});
     }}
 </script>
 
@@ -119,7 +110,6 @@ Content-Type: text/html
 </html>
 """
     return html
-    
 # -----------------------------------
 
 HOST = '' #empty string to allow all connections
@@ -145,7 +135,6 @@ try:
             continue
 
         #parse the data
-        # Check if it's a POST (form submission, now sent by AJAX)
         if request.startswith("POST"):
             data = parsePOSTdata(request)
             
@@ -154,15 +143,15 @@ try:
                 led = int(data.get("led", 0))
                 new_brightness = int(data.get("brightness", 0))
 
-                #update pi and tracking array if data is valid
+                #update led and tracking array if data is valid
                 if 0 <= led < len(pwms):
-                    brightness_clamped = max(0, min(100, new_brightness))
-                    
-                    led_brightness[led] = brightness_clamped
-                    pwms[led].ChangeDutyCycle(brightness_clamped)
+                    led_brightness[led] = new_brightness
+                    pwms[led].ChangeDutyCycle(new_brightness)
                     
             except ValueError:
                 print("Error: Received invalid value.")
+            except Exception as e:
+                print(f"Hardware Error: {e}")
 
         #update HTML page w/ LLM function
         response = generate_html()
