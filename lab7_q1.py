@@ -1,22 +1,15 @@
+"""
+Connor Chang
+ENME441 - Lab 7
+Question 1
+"""
+
 import socket
 import RPi.GPIO as GPIO
 
-pwms = [] #initialize pwms list
-
-# helper function to extract key,value pairs of POST data (from lecture)
-def parsePOSTdata(data):
-    data_dict = {}
-    idx = data.find('\r\n\r\n') + 4
-    data = data[idx:] # Slice to get only the body data
-    data_pairs = data.split('&')
-    for pair in data_pairs:
-        key_val = pair.split('=')
-        if len(key_val) == 2:
-            data_dict[key_val[0]] = key_val[1]
-    return data_dict
-
 GPIO.setmode(GPIO.BCM)
 
+pwms = [] #initialize pwms list
 LED_PINS = [17, 27, 22]
 
 #create PWM objects for each LED
@@ -29,6 +22,17 @@ for i in LED_PINS:
 #brightness array to track brightness levels
 led_brightness = [0, 0, 0]
 
+# helper function to extract key,value pairs of POST data (from lecture)
+def parsePOSTdata(data):
+    data_dict = {}
+    idx = data.find('\r\n\r\n') + 4
+    data = data[idx:] # Slice to get only the body data
+    data_pairs = data.split('&')
+    for pair in data_pairs:
+        key_val = pair.split('=')
+        if len(key_val) == 2:
+            data_dict[key_val[0]] = key_val[1]
+    return data_dict
 
 # -----------------------------------
 # HTML Page Generator (LLM)
