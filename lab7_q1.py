@@ -1,28 +1,16 @@
 import socket
 import RPi.GPIO as GPIO
 
-# Fix: Initialize pwms list
-pwms = []
+pwms = [] #initialize pwms list
 
-# Helper function to extract key,value pairs of POST data
+# helper function to extract key,value pairs of POST data (from lecture)
 def parsePOSTdata(data):
-    """
-    Extracts key/value pairs from the body of a raw HTTP POST request string.
-    Expects data in the format: key1=value1&key2=value2...
-    """
     data_dict = {}
-    # Find the end of the headers and the start of the data body
-    # \r\n\r\n is the separator between headers and body
     idx = data.find('\r\n\r\n') + 4
     data = data[idx:] # Slice to get only the body data
-    
-    # Split the body into individual key=value pairs
     data_pairs = data.split('&')
-    
     for pair in data_pairs:
-        # Split each pair into key and value
         key_val = pair.split('=')
-        # Ensure we have both key and value
         if len(key_val) == 2:
             data_dict[key_val[0]] = key_val[1]
     return data_dict
@@ -83,53 +71,43 @@ Content-Type: text/html
 HOST = '' #empty string to allow all connections
 PORT = 8080 #initialize port
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #creating socket w/ IPv4 socket and use TCP as the message transport protocol
-server_socket.bind((HOST, PORT)) #bind host through given port
-server_socket.listen(1) #listen for clients
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #creating socket w/ IPv4 socket and use TCP as the message transport protocol
+s.bind((HOST, PORT)) #bind host through given port
+s.listen(1) #listen for clients, up to 1 connection
 
-print(f"Server running on port {PORT}")
-print("Open: http://<172.20.10.2>:" + str(PORT))
+print("Open: http://172.20.10.2:" + str(PORT))
 
 try:
     while True:
-        conn, addr = server_socket.accept() #accept client connection
+        conn, addr = s.accept() #accept client connection
         request = conn.recv(1024).decode('utf-8')
         """
-        recieves data from the socket object with maximum of 1024 bytes
+        recieves data from the client with maximum of 1024 bytes
         the network data is decoded and transmitted into raw bytes then back to string
         """
-#close the connection socket and continue to next iteration of while loop if request is empty
-        if not request:
+        
+        if not request: #close the connection socket and continue to next iteration of while loop if request is empty
             conn.close()
             continue
 
-        # Check if it's a POST (form submission)
+        #parse the data
         if request.startswith("POST"):
-            
-            # --- USING THE NEW PARSING FUNCTION ---
-            # 1. Call the function to get the form data dictionary
-            form_data = parsePOSTdata(request)
+            data = parsePOSTdata(request)
+            led = int(data.get("led", 0))
+            new_brightness = int(data.get("brightness", 0))
+            led_brightness[led] = new_brightness
+            pwms[led].ChangeDutyCycle(new_brightness)
 
-            # 2. Extract and convert the values
-            # The values from the POST body are strings, so they must be converted to int
-            selected_led = int(form_data.get("led", 0))
-            new_brightness = int(form_data.get("brightness", 0))
-
-            # Update LED brightness
-            led_brightness[selected_led] = new_brightness
-            pwms[selected_led].ChangeDutyCycle(new_brightness)
-
-        # Send back the current HTML page
+        #update HTML page w/ LLM function
         response = generate_html()
         conn.sendall(response.encode('utf-8'))
-        conn.close()
 
 except KeyboardInterrupt:
-    print("\nShutting down server...")
+    print("\nExiting")
 
 finally:
-    # Cleanup GPIO and close socket
+    #cleanup GPIO and close socket
     for pwm in pwms:
         pwm.stop()
     GPIO.cleanup()
-    server_socket.close()
+    s.close()
