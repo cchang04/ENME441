@@ -46,13 +46,6 @@ Content-Type: text/html
 <input type="submit" value="Change Brightness">
 </form>
 
-<hr>
-<h4>Current LED Brightness Levels:</h4>
-<ul>
-<li>LED 1: {led_brightness[0]}%</li>
-<li>LED 2: {led_brightness[1]}%</li>
-<li>LED 3: {led_brightness[2]}%</li>
-</ul>
 </body>
 </html>
 """
