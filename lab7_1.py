@@ -24,6 +24,10 @@ led_brightness = [0, 0, 0]
 # -----------------------------------
 def generate_html():
     """Return a full HTML page showing sliders, radio buttons, and LED states."""
+    
+    # 1. Determine the brightness of the default selected LED (LED 1 at index 0)
+    default_slider_value = led_brightness[0] 
+    
     html = f"""\
 HTTP/1.1 200 OK
 Content-Type: text/html
@@ -36,7 +40,7 @@ Content-Type: text/html
 <h3>Brightness level:</h3>
 
 <form method="POST">
-<input type="range" name="brightness" min="0" max="100" value="50"><br><br>
+<input type="range" name="brightness" min="0" max="100" value="{default_slider_value}"><br><br>
 
 <b>Select LED:</b><br>
 <input type="radio" name="led" value="0" checked> LED 1 ({led_brightness[0]}%)<br>
